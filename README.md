@@ -38,7 +38,9 @@ In order to use the plugin you will also need a Savvy API Key. Getting a key is 
 <h3>How to update</h3>
 
 1. Download the latest version of the integration: https://github.com/savvytechcom/savvy-opencart/releases/latest
-2. Extract the package and connect to your server using SFTP Clients. Then upload the '**upload**' folder contents (and rewrite files with the old ones) to Opencart root. 
+2. Extract the package and connect to your server using SFTP Clients. Then upload the '**upload**' folder contents (and rewrite files with the old ones) to Opencart root.
+3. Clear cache if needed
+
 
 <h3>Get Help</h3>
 Start with our <a href="https://help.savvytech.com">Knowledge Base</a> and <a href="https://help.savvytech.com/frequently-asked-questions">FAQ</a>.

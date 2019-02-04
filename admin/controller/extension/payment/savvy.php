@@ -74,6 +74,7 @@ class ControllerExtensionPaymentSavvy extends Controller
             'payment_savvy_api_secret',
             'payment_savvy_api_public',
             'payment_savvy_api_testnet',
+            'payment_savvy_api_pubtestnet',
             'payment_savvy_testnet',
             'payment_savvy_exchange_rate_locktime',
             'payment_savvy_completed_status_id',
