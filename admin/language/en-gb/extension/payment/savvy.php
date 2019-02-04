@@ -1,14 +1,14 @@
 <?php
 // Heading
-$_['heading_title'] = 'Crypto Payment Gateway by savvytech.com';
+$_['heading_title'] = 'Crypto Payments by Savvytech.com';
 
 // Text
 $_['text_extension'] = 'Extensions';
 $_['text_success'] = 'Success: You have modified Savvy settings!';
 $_['text_clear_log_success'] = 'Success: You have cleared Savvy log!';
 $_['text_edit'] = 'Configure';
-$_['text_savvy'] = '<a target="_BLANK" href="https://www.savvytech.com"><img src="view/image/payment/paybear-full.png" alt="savvytech.com" title="Savvy" /></a>';
-
+//$_['text_savvy'] = '<a target="_BLANK" href="https://www.savvytech.com"><img src="view/image/payment/paybear-full.png" alt="savvytech.com" title="Savvy" /></a>';
+$_['text_savvy'] = '';
 
 // Entry
 $_['entry_log'] = 'Log';
