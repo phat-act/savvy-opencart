@@ -4,7 +4,7 @@
 <h3>What is this repo?</h3>
 This repo contains a payment plugin for WooCommerce shopping cart to support crypto currencies via Savvy. Supported currencies are Bitcoin, Bitcoin Cash, Bitcoin Gold, Ethereum, Ethereum Classic, Litecoin, Dash, Dai, and Binance Coin.
 
-Users have the opportunity to manage the currencies they would like to accept in their settings at https://www.savvytech.com
+Users have the opportunity to manage the currencies they would like to accept in their settings at https://www.savvy.io
 
 <h3>Who do we expect to use this documentation?</h3>
 You’re in the right place if you’re a developer or a shop owner looking to integrate a new payment method into your shopping cart.
@@ -16,7 +16,7 @@ Before installing the plugin please make sure you have the latest version of Ope
 
 In order to use the plugin you will also need a Savvy API Key. Getting a key is free and easy:
 
- 1. Sign up to https://www.savvytech.com and create a personal wallet.
+ 1. Sign up to https://www.savvy.io and create a personal wallet.
  2. Click the Merchant button on the left to enable merchant features.
  3. Create a merchant wallet using the existing sending password.
  4. Click Profile -> Settings -> Merchant tab
@@ -43,6 +43,6 @@ In order to use the plugin you will also need a Savvy API Key. Getting a key is 
 
 
 <h3>Get Help</h3>
-Start with our <a href="https://help.savvytech.com">Knowledge Base</a> and <a href="https://help.savvytech.com/frequently-asked-questions">FAQ</a>.
+Start with our <a href="https://help.savvy.io">Knowledge Base</a> and <a href="https://help.savvy.io/frequently-asked-questions">FAQ</a>.
 
 Still have questions or need support? Log in to your Savvy account and use the live chat to talk to our team directly!

@@ -6,9 +6,9 @@ class ModelExtensionPaymentSavvy extends Model
 
     public static $currencies = null;
 
-    public static $baseUrl = 'https://api.savvytech.com/v3';
+    public static $baseUrl = 'https://api.savvy.io/v3';
 
-    public static $testUrl = 'https://api.test.savvytech.com/v3';
+    public static $testUrl = 'https://api.test.savvy.io/v3';
 
     public function getMethod($address, $total)
     {

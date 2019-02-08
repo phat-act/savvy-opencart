@@ -7,7 +7,7 @@ $_['text_extension'] = 'Extensions';
 $_['text_success'] = 'Success: You have modified Savvy settings!';
 $_['text_clear_log_success'] = 'Success: You have cleared Savvy log!';
 $_['text_edit'] = 'Configure';
-//$_['text_savvy'] = '<a target="_BLANK" href="https://www.savvytech.com"><img src="view/image/payment/paybear-full.png" alt="savvytech.com" title="Savvy" /></a>';
+//$_['text_savvy'] = '<a target="_BLANK" href="https://www.savvy.io"><img src="view/image/payment/paybear-full.png" alt="savvy.io" title="Savvy" /></a>';
 $_['text_savvy'] = '';
 
 // Entry
