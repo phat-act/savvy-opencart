@@ -30,7 +30,7 @@ In order to use the plugin you will also need a Savvy API Key. Getting a key is 
 3. Open Opencart Admin - {Extensions} - {Installer}
 4. Click {Upload} and select the ZIP file of the plugin
 5. Click {Extensions} - {Extensions} and select {Payment} from the dropdown.
-6. Find {Crypto Payments by Savvytech.com} and click {Install}
+6. Find {Crypto Payments by Savvy.io} and click {Install}
 7. Once installed, click {Edit} and enter your API Keys in settings.
 8. Don't forget to save the settings by clicking the Save icon at the top.
 9. Test the plugin by making a test order.

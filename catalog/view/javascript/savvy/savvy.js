@@ -1,10 +1,20 @@
 (function() {
-    this.Paybear = function () {
+    this.Savvy = function () {
 
-        if (window.paybear instanceof Paybear) {
-            paybear.destroy();
-            window.paybear = undefined;
+        if (window.savvy instanceof Savvy) {
+            savvy.destroy();
+            window.savvy = undefined;
         }
+
+        this.state = {
+            checkStatusInterval: null,
+            interval: null,
+            selected: 0,
+            isConfirming: false,
+            html: null,
+            isModalShown: false,
+            unloadBound: false,
+        };
 
         var that = this;
         var options;
@@ -27,18 +37,18 @@
 
             newButton.addEventListener('click', function (e) {
                 e.preventDefault();
-                paybearInit.call(that);
+                savvyInit.call(that);
             })
         } else {
-            paybearInit.call(that);
+            savvyInit.call(that);
         }
 
     };
 
-    Paybear.prototype.destroy = function () {
+    Savvy.prototype.destroy = function () {
         var that = this;
         var state = that.state;
-        var appContainer = document.querySelector('.PayBear-app');
+        var appContainer = document.querySelector('.Savvy-app');
 
         appContainer.style.display = 'none';
 
@@ -56,16 +66,7 @@
         clearInterval(state.checkStatusInterval);
     };
 
-    function paybearInit() {
-        this.state = {
-            checkStatusInterval: null,
-            interval: null,
-            selected: 0,
-            isConfirming: false,
-            html: null,
-            isModalShown: false,
-            unloadBound: false,
-        };
+    function savvyInit() {
 
         var defaults = {
             timer: 15 * 60,
@@ -78,7 +79,7 @@
             redirectTimeout: 5,
             minOverpaymentFiat: 1,
             maxUnderpaymentFiat: 0.01,
-            statusInterval: 10000,
+            statusInterval: 10,
         };
 
         this.options = defaults;
@@ -93,7 +94,7 @@
             resizeFont(that.state.currencies[that.state.selected]['address']);
         };
 
-        that.root = document.getElementById('paybear');
+        that.root = document.getElementById('savvy');
         that.root.removeAttribute('style');
 
         that.state.html = that.root.innerHTML;
@@ -125,19 +126,19 @@
 
     function app() {
         var that = this;
-        that.coinsBlock = document.querySelector('.PayBear__Icons');
+        that.coinsBlock = document.querySelector('.Savvy__Icons');
         that.paymentBlock = document.querySelector('.P-Payment');
         that.paymentHeader = document.querySelector('.P-Payment__header');
         that.paymentHeaderTimer = document.querySelector('.P-Payment__header__timer');
         that.paymentHeaderTitle = document.querySelector('.P-Payment__header__title');
         that.paymentHeaderHelper = document.querySelector('.P-Payment__header__helper');
-        that.topBackButton = document.querySelector('.PayBear__Nav__arrow');
+        that.topBackButton = document.querySelector('.Savvy__Nav__arrow');
 
         var state = that.state;
         var options = that.options;
         that.defaultTimer = options.timer;
 
-        var appContainer = document.querySelector('.PayBear-app');
+        var appContainer = document.querySelector('.Savvy-app');
         appContainer.removeAttribute('style');
 
         if (options.modal && !options.settingsUrl) {
@@ -145,7 +146,7 @@
         }
 
         if (options.enablePoweredBy) {
-            document.querySelector('.PayBear__brand-link').removeAttribute('style');
+            document.querySelector('.Savvy__brand-link').removeAttribute('style');
         }
 
         if (typeof options.currencies === 'string') {
@@ -238,12 +239,13 @@
         fillCoinsReset.call(that);
 
         bindUnloadHandler.call(that);
+        if (that.handleDocumentVisibility) document.removeEventListener('visibilitychange', that.handleDocumentVisibility);
 
         var coinsContainer = that.coinsBlock;
         coinsContainer.innerHTML = '';
 
         that.state.currencies.map(function (item, index) {
-            var classNames = ['PayBear__Item'];
+            var classNames = ['Savvy__Item'];
             var coin = document.createElement('div');
             coin.setAttribute('role', 'button');
             coin.setAttribute('tabindex', 0);
@@ -290,11 +292,11 @@
                 }
             };
 
-            coin.innerHTML = '<div class="PayBear__Item__icon">\n' +
+            coin.innerHTML = '<div class="Savvy__Item__icon">\n' +
                 '<img src="' + item.icon + '" alt="' + item.title + '"></div>\n' +
-                '<div class="PayBear__Item__code">' + item.code + '</div>\n' +
-                '<div class="PayBear__Item__name">' + item.title + '</div>\n' +
-                '<div class="PayBear__Item__val">' + (item.coinsValue ? item.coinsValue : '') + '</div>';
+                '<div class="Savvy__Item__code">' + item.code + '</div>\n' +
+                '<div class="Savvy__Item__name">' + item.title + '</div>\n' +
+                '<div class="Savvy__Item__val">' + (item.coinsValue ? item.coinsValue : '') + '</div>';
 
             coinsContainer.appendChild(coin);
         });
@@ -319,7 +321,7 @@
             that.topBackButton.removeEventListener('click', that.handleTopBackButton);
             that.handleTopBackButton = function(event) {
                 event.preventDefault();
-                paybearBack.call(that);
+                savvyBack.call(that);
             };
             that.topBackButton.addEventListener('click', that.handleTopBackButton);
         } else {
@@ -380,7 +382,7 @@
 
                 that.handleTopBackButton = function (event) {
                     event.preventDefault();
-                    paybearBack.call(that);
+                    savvyBack.call(that);
                 };
                 that.topBackButton.addEventListener('click', that.handleTopBackButton);
             }
@@ -400,7 +402,26 @@
         // timer
         if (options.timer) {
             that.paymentHeaderTimer.textContent = formatTimer(options.timer);
+            var time = new Date();
+            var endTime = new Date(time.setSeconds(time.getSeconds() + that.defaultTimer));
+            var currentTime = new Date();
+            that.handleDocumentVisibility = function() {
+                if (document.visibilityState === 'visible' &&
+                    document.querySelector('.P-Payment__start').offsetWidth > 0) {
+                    var timeDiff = Math.abs(currentTime.getTime() - endTime.getTime());
+                    var timeDiffSec = Math.round(timeDiff / 1000);
+                    var desync = Math.abs(options.timer - timeDiffSec) > 1;
+                    if (desync && currentTime <= endTime) {
+                        options.timer = timeDiffSec;
+                    } else if (currentTime > endTime) {
+                        paymentExpired.call(that);
+                    }
+                }
+            };
+            document.addEventListener('visibilitychange', that.handleDocumentVisibility);
+
             state.interval = setInterval(function() {
+                currentTime = new Date();
                 var timer = options.timer - 1;
                 if (timer < 1) {
                     paymentExpired.call(that);
@@ -439,7 +460,9 @@
         if (options.enableFiatTotal && options.fiatValue) {
             document.querySelector('.P-Payment__value__price').removeAttribute('style');
             var fiatValue = coinsPaid > 0 ? Math.round(selectedCoin.rate * coinsToPay * 100) / 100 : options.fiatValue;
-            document.querySelector('.P-Payment__value__price').innerHTML = options.fiatSign + '<span>' + (+fiatValue).toFixed(2) + '</span>&nbsp;' + options.fiatCurrency;
+            var priceHTML = options.fiatSign + (+fiatValue).toFixed(2);
+            var discountedHTML = '<span class="P-Payment__value__price__line">' + priceHTML + '</span>&nbsp;' + options.fiatSign + (+options.fiatValueDiscounted).toFixed(2) + '&nbsp;';
+            document.querySelector('.P-Payment__value__price').innerHTML = (options.fiatValueDiscounted && !coinsPaid) ? discountedHTML + options.fiatCurrency : priceHTML + '&nbsp;' + options.fiatCurrency;
         }
 
 
@@ -514,7 +537,7 @@
         });
 
         // tabs
-        paybearTabs.call(that);
+        savvyTabs.call(that);
 
         var statusUrl = selectedCoin.statusUrl || options.statusUrl;
 
@@ -542,7 +565,7 @@
                                     selectedCoin.coinsPaid = response.coinsPaid;
 
                                     if (response.coinsPaid < selectedCoin.coinsValue - maxUnderpaymentCrypto) {
-                                        paymentUnpaid.call(that, diff);
+                                        paymentUnpaid.call(that, diff, response.coinsPaid);
                                     } else {
                                         checkConfirmations = true;
                                     }
@@ -568,11 +591,11 @@
                 xhr.open('GET', url, true);
                 xhr.setRequestHeader('Content-Type', 'application/json');
                 xhr.send();
-            }, options.statusInterval);
+            }, options.statusInterval * 1000);
         }
     }
 
-    function paymentUnpaid(diff) {
+    function paymentUnpaid(diff, paid) {
         var that = this;
         var state = that.state;
         var options = that.options;
@@ -586,19 +609,30 @@
         that.topBackButton.style.display = 'none';
         unpaidScreen.removeAttribute('style');
 
-        var unpaidScreenBtn = unpaidScreen.querySelector('button');
-        unpaidScreenBtn.innerHTML =
-            'Pay ' + diff + ' ' +
-            selectedCoin.code + ' (' + options.fiatSign +
-            (Math.round(selectedCoin.rate * diff * 100) / 100).toFixed(2) +
-            '&nbsp;' + options.fiatCurrency + ')';
+        var unpaidScreenBtn = unpaidScreen.querySelector('.P-btn');
+        var unpaidDue = document.querySelectorAll('.P-Payment__unpaid__due');
+        var unpaidPaid = document.querySelectorAll('.P-Payment__unpaid__paid');
+        var unpaidUnderpaid = document.querySelectorAll('.P-Payment__unpaid__underpaid');
+        var unpaidPaidFiat = document.querySelectorAll('.P-Payment__unpaid__paidFiat');
 
-        unpaidScreenBtn.addEventListener('click', function toStartScreen() {
-            unpaidScreen.style.display = 'none';
-            that.paymentHeader.removeAttribute('style');
-            paymentStart.call(that, true);
-            unpaidScreenBtn.removeEventListener('click', toStartScreen);
-        });
+        setInnerHtml(unpaidDue, selectedCoin.coinsValue + ' ' + selectedCoin.code);
+        setInnerHtml(unpaidPaid, paid + ' ' + selectedCoin.code);
+        setInnerHtml(unpaidUnderpaid, diff + '&nbsp;' + selectedCoin.code);
+        setInnerHtml(unpaidPaidFiat, options.fiatSign + (Math.round(selectedCoin.rate * paid * 100) / 100).toFixed(2));
+
+        if (options.underpaidUrl || options.underpaidText) {
+            if (options.underpaidUrl) unpaidScreenBtn.href = options.underpaidUrl;
+            if (options.underpaidText) unpaidScreenBtn.innerHTML = options.underpaidText;
+        } else {
+            unpaidScreenBtn.addEventListener('click', function toStartScreen(e) {
+                e.preventDefault();
+                unpaidScreen.style.display = 'none';
+                that.paymentHeader.removeAttribute('style');
+                paymentStart.call(that, true);
+                unpaidScreenBtn.removeEventListener('click', toStartScreen);
+            });
+        }
+
     }
 
     function paymentExpired() {
@@ -612,6 +646,7 @@
         var state = that.state;
         clearInterval(state.interval);
         clearInterval(state.checkStatusInterval);
+        if (that.handleDocumentVisibility) document.removeEventListener('visibilitychange', that.handleDocumentVisibility);
         var paymentExpired = document.querySelector('.P-Payment__expired');
         var paymentStartScreen = document.querySelector('.P-Payment__start');
         var unpaidScreen = document.querySelector('.P-Payment__unpaid');
@@ -685,6 +720,7 @@
             var paymentStartScreen = document.querySelector('.P-Payment__start');
             var paymentConfirming = document.querySelector('.P-Payment__confirming');
             paymentStartScreen.style.display = 'none';
+            if (that.handleDocumentVisibility) document.removeEventListener('visibilitychange', that.handleDocumentVisibility);
             paymentConfirming.removeAttribute('style');
 
             // helper
@@ -764,6 +800,7 @@
         var paymentConfirmingHelper = document.querySelector('.P-Payment__confirming-helper');
         var paymentConfirmed = document.querySelector('.P-Payment__confirmed');
         paymentStartScreen.style.display = 'none';
+        if (that.handleDocumentVisibility) document.removeEventListener('visibilitychange', that.handleDocumentVisibility);
         paymentConfirming.style.display = 'none';
         paymentConfirmingHelper.style.display = 'none';
         paymentConfirmed.removeAttribute('style');
@@ -801,7 +838,7 @@
 
         if (overPaid) {
             document.querySelector('.P-Payment__header__check').classList.add('P-Payment__header__check--yellow');
-            var overPaidImg = 'data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjI2MCIgdmlld0JveD0iMCAwIDI2MyAyNjAiIHdpZHRoPSIyNjMiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSI+PGVsbGlwc2UgY3g9IjEzMC4xOTgwMSIgY3k9IjEzMCIgZmlsbD0iI2VlY2Y3ZiIgcng9IjEzMC4xOTgwMSIgcnk9IjEzMCIvPjxwYXRoIGQ9Im0yNTQuMDAzMzIgODkuNzU3MmMtMy42ODcyMS0xMS4zMTc4LTguODc0My0yMS45NTE4LTE1LjM0NTE0LTMxLjY2OGwtMTEzLjk2NzU0IDExOC41MjM2LjIyOTE1IDEzLjE4OTggNS4zNzk3OC0uMDMzOHoiIGZpbGw9IiNjNGE3NWUiLz48cGF0aCBkPSJtMjYwLjU5Mzk0MSA1MS4xNzMyLTIzLjIxNjkxMS0yMi45MDM0Yy0zLjE2OTAyLTMuMTI3OC04LjMwOTIzOC0zLjEyNzgtMTEuNDc4MjU4IDBsLTk5LjI0NDc0MiAxMDIuMDcwOC00Mi43OTg2OTM0LTQyLjIyNGMtMy4xNzQyMjc3LTMuMTI3OC04LjMwOTIzNzYtMy4xMjc4LTExLjQ4MDg2MTQgMGwtMjAuNTc5MDk5IDIwLjMwMzRjLTMuMTY5MDE5OCAzLjEyNTItMy4xNjkwMTk4IDguMTk1MiAwIDExLjMyMDRsNjguNjg5ODcxOCA2Ny43NTg2YzEuODMwNTg0IDEuODA3IDQuMzEyMTU4IDIuNTM1IDYuNjk3Mzg2IDIuMjU0MiAyLjM4NTIyNy4yNzgyIDQuODY2ODAyLS40NDcyIDYuNjk3Mzg2LTIuMjU0MmwxMjYuNzEzOTIxLTEyNS4wMDI4YzMuMTY5MDE5LTMuMTI3OCAzLjE2OTAxOS04LjE5NTIgMC0xMS4zMjN6IiBmaWxsPSIjZjhmOGY4Ii8+PHBhdGggZD0ibTEzMy44ODAwMiAxODcuNDk5IDEyNi43MTM5MjEtMTI1LjAwMjhjMy4xNjkwMTktMy4xMjc4IDMuMTY5MDE5LTguMTk1MiAwLTExLjMyM2wtMy43ODg3NjMtMy43Mzg4LTEzMC4zNDY0NDUgMTI4LjAxMS03MS43ODU5ODA1LTY5Ljg2NzItMi44NzQ3NzIzIDIuODM5MmMtMy4xNjkwMTk4IDMuMTI1Mi0zLjE2OTAxOTggOC4xOTUyIDAgMTEuMzIwNGw2OC42ODcyNjc4IDY3Ljc2MTJjMS44MzA1ODQgMS44MDcgNC4zMTIxNTggMi41MzUgNi42OTczODYgMi4yNTQyIDIuMzg1MjI3LjI4MDggNC44NjY4MDItLjQ0NDYgNi42OTczODYtMi4yNTQyeiIgZmlsbD0iI2ViZWJlYiIvPjwvZz48L3N2Zz4=';
+            var overPaidImg = 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' height=\'260\' viewBox=\'0 0 263 260\' width=\'263\'%3E%3Cg fill=\'none\'%3E%3Cellipse cx=\'130.19801\' cy=\'130\' fill=\'%23eecf7f\' rx=\'130.19801\' ry=\'130\'/%3E%3Cpath d=\'m254.00332 89.7572c-3.68721-11.3178-8.8743-21.9518-15.34514-31.668l-113.96754 118.5236.22915 13.1898 5.37978-.0338z\' fill=\'%23c4a75e\'/%3E%3Cpath d=\'m260.593941 51.1732-23.216911-22.9034c-3.16902-3.1278-8.309238-3.1278-11.478258 0l-99.244742 102.0708-42.7986934-42.224c-3.1742277-3.1278-8.3092376-3.1278-11.4808614 0l-20.579099 20.3034c-3.1690198 3.1252-3.1690198 8.1952 0 11.3204l68.6898718 67.7586c1.830584 1.807 4.312158 2.535 6.697386 2.2542 2.385227.2782 4.866802-.4472 6.697386-2.2542l126.713921-125.0028c3.169019-3.1278 3.169019-8.1952 0-11.323z\' fill=\'%23f8f8f8\'/%3E%3Cpath d=\'m133.88002 187.499 126.713921-125.0028c3.169019-3.1278 3.169019-8.1952 0-11.323l-3.788763-3.7388-130.346445 128.011-71.7859805-69.8672-2.8747723 2.8392c-3.1690198 3.1252-3.1690198 8.1952 0 11.3204l68.6872678 67.7612c1.830584 1.807 4.312158 2.535 6.697386 2.2542 2.385227.2808 4.866802-.4446 6.697386-2.2542z\' fill=\'%23ebebeb\'/%3E%3C/g%3E%3C/svg%3E';
             document.querySelector('.P-Payment__confirmed__title').classList.add('P-Payment__confirmed__title--overpaid');
             paymentConfirmed.querySelector('.P-Content__icon img').setAttribute('src', overPaidImg);
             paymentConfirmedBtn.className = 'P-btn';
@@ -869,7 +906,7 @@
             textarea.setAttribute('readonly', '');
             textarea.value = text;
 
-            document.querySelector('.PayBear-app').appendChild(textarea);
+            document.querySelector('.Savvy-app').appendChild(textarea);
 
             selectByElement(textarea);
 
@@ -882,7 +919,7 @@
         }
     }
 
-    function paybearTabs() {
+    function savvyTabs() {
         var state = this.state;
         var selectedCoin = state.currencies[state.selected];
         var tabsClassNames = {
@@ -937,7 +974,7 @@
         }
     }
 
-    function paybearBack() {
+    function savvyBack() {
         var that = this;
         var options = that.options;
         var onBackClick = options.onBackClick;
@@ -1025,24 +1062,24 @@
     }
 
     function beforeCurrenciesSend() {
-        document.querySelector('.PayBear-spinner').removeAttribute('style');
-        document.querySelector('.PayBear-app').style.display = 'none';
-        document.querySelector('.PayBear-app-error').style.display = 'none';
+        document.querySelector('.Savvy-spinner').removeAttribute('style');
+        document.querySelector('.Savvy-app').style.display = 'none';
+        document.querySelector('.Savvy-app-error').style.display = 'none';
     }
 
     function handleCurrenciesError() {
         var that = this;
-        document.querySelector('.PayBear-spinner').style.display = 'none';
-        document.querySelector('.PayBear-app').style.display = 'none';
-        document.querySelector('.PayBear-app-error').removeAttribute('style');
+        document.querySelector('.Savvy-spinner').style.display = 'none';
+        document.querySelector('.Savvy-app').style.display = 'none';
+        document.querySelector('.Savvy-app-error').removeAttribute('style');
         if (typeof that.options.currencies === 'string') {
-            document.querySelector('.PayBear-app-error .P-btn').addEventListener('click', function retry(e) {
+            document.querySelector('.Savvy-app-error .P-btn').addEventListener('click', function retry(e) {
                 e.preventDefault();
                 fetchCurrencies.call(that);
                 this.removeEventListener('click', retry);
             });
         } else {
-            document.querySelector('.PayBear-app-error .P-btn').style.display = 'none';
+            document.querySelector('.Savvy-app-error .P-btn').style.display = 'none';
         }
 
         if (that.options.modal) {
@@ -1051,8 +1088,8 @@
     }
 
     function handleCurrenciesSuccess() {
-        document.querySelector('.PayBear-spinner').style.display = 'none';
-        document.querySelector('.PayBear-app').removeAttribute('style');
+        document.querySelector('.Savvy-spinner').style.display = 'none';
+        document.querySelector('.Savvy-app').removeAttribute('style');
     }
 
     function beforeCurrencySend() {
@@ -1063,24 +1100,24 @@
     function handleCurrencyError() {
         var that = this;
         that.coinsBlock.classList.remove('P-disabled');
-        document.querySelector('.PayBear-app').style.display = 'none';
-        document.querySelector('.PayBear-app-error').removeAttribute('style');
+        document.querySelector('.Savvy-app').style.display = 'none';
+        document.querySelector('.Savvy-app-error').removeAttribute('style');
 
         if (that.state.currencies.length > 1) {
-            document.querySelector('.PayBear-app-error .P-btn').textContent = 'Back';
-            document.querySelector('.PayBear-app-error .P-btn').addEventListener('click', function retry(e) {
+            document.querySelector('.Savvy-app-error .P-btn').textContent = 'Back';
+            document.querySelector('.Savvy-app-error .P-btn').addEventListener('click', function retry(e) {
                 e.preventDefault();
                 if (typeof that.options.currencies === 'string') {
                     fetchCurrencies.call(that);
                 } else {
-                    document.querySelector('.PayBear-app').removeAttribute('style');
-                    document.querySelector('.PayBear-app-error').style.display = 'none';
+                    document.querySelector('.Savvy-app').removeAttribute('style');
+                    document.querySelector('.Savvy-app-error').style.display = 'none';
                     fillCoins.call(that);
                 }
                 this.removeEventListener('click', retry);
             });
         } else {
-            document.querySelector('.PayBear-app-error .P-btn').style.display = 'none';
+            document.querySelector('.Savvy-app-error .P-btn').style.display = 'none';
         }
 
         if (that.options.modal) {
@@ -1117,11 +1154,11 @@
     function initModal() {
         var that = this;
         var modal = document.createElement('div');
-        modal.className = 'PayBearModal';
+        modal.className = 'SavvyModal';
         var overlay = document.createElement('div');
-        overlay.className = 'PayBearModal__Overlay';
+        overlay.className = 'SavvyModal__Overlay';
         var modalContent = document.createElement('div');
-        modalContent.className = 'PayBearModal__Content';
+        modalContent.className = 'SavvyModal__Content';
         modalContent.appendChild(that.root);
         modal.appendChild(overlay);
         modal.appendChild(modalContent);
@@ -1162,8 +1199,8 @@
 
     function updateModal() {
         var that = this;
-        var openedModalClass = 'PayBearModal--open';
-        var openedModalBodyClass = 'PayBearModal__Body--open';
+        var openedModalClass = 'SavvyModal--open';
+        var openedModalBodyClass = 'SavvyModal__Body--open';
 
         if (that.state.isModalShown) {
             that.modal.classList.add(openedModalClass);
@@ -1176,13 +1213,15 @@
 
     function handleModalOverlay() {
         var that = this;
-        var overlay = document.querySelector('.PayBearModal__Overlay');
+        that.root.style.height = 'auto';
+        var overlay = document.querySelector('.SavvyModal__Overlay');
         var newOverlay = overlay.cloneNode(true);
 
         overlay.parentNode.replaceChild(newOverlay, overlay);
 
         newOverlay.addEventListener('click', function errorClose() {
             hideModal.call(that);
+            that.root.removeAttribute('style');
             this.removeEventListener('click', errorClose, false);
         }, false);
     }
@@ -1202,6 +1241,12 @@
         if (options.unloadHandler && that.state.unloadBound) {
             that.state.unloadBound = false;
             window.removeEventListener('beforeunload', options.unloadHandler);
+        }
+    }
+
+    function setInnerHtml(elem, html) {
+        for(var i = 0; i < elem.length; i++) {
+            elem[i].innerHTML = html;
         }
     }
 

@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title'] = 'Crypto Payments by Savvytech.com';
+$_['heading_title'] = 'Crypto Payments by Savvy.io';
 
 // Text
 $_['text_extension'] = 'Extensions';
