@@ -48,7 +48,7 @@ class ModelExtensionPaymentSavvy extends Model
 
         }
 
-        echo 'can\'t get rate for ' . $token;
+        $this->log('can\'t get rate for ' . $token);
 
         return null;
     }
@@ -102,6 +102,10 @@ class ModelExtensionPaymentSavvy extends Model
                 self::$rates = json_decode($ratesString);
             } else {
                 $url = sprintf("%s/exchange/%s/rate", self::$baseUrl, strtolower($currency));
+
+                if ($this->config->get('payment_savvy_testnet')) {
+                    $url = sprintf("%s/exchange/%s/rate", self::$testUrl, strtolower($currency));
+                }
 
                 if ($response = file_get_contents($url)) {
                     $response = json_decode($response);
