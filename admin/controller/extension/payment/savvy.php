@@ -117,7 +117,7 @@ class ControllerExtensionPaymentSavvy extends Controller
         $langs = $this->model_localisation_language->getLanguages();
 
         $defaultParams = [
-            'payment_savvy_version' => '0.4.3',
+            'payment_savvy_version' => '1.0.6',
             'payment_savvy_status' => 0,
             'payment_savvy_title' => 'Pay with Crypto via Savvy (BTC/ETH/LTC and more)',
             'payment_savvy_exchange_rate_locktime' => 15,
