@@ -118,7 +118,7 @@ class ControllerExtensionPaymentSavvy extends Controller
 
         $defaultParams = [
             'payment_savvy_version' => '0.4.3',
-            'payment_savvy_status' => 1,
+            'payment_savvy_status' => 0,
             'payment_savvy_title' => 'Pay with Crypto via Savvy (BTC/ETH/LTC and more)',
             'payment_savvy_exchange_rate_locktime' => 15,
             'payment_savvy_max_underpayment' => 0.01,
