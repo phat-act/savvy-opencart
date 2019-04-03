@@ -2,7 +2,7 @@
 <h3>Savvy Integration for Opencart</h3>
 
 <h3>What is this repo?</h3>
-This repo contains a payment plugin for WooCommerce shopping cart to support crypto currencies via Savvy. Supported currencies are Bitcoin, Bitcoin Cash, Bitcoin Gold, Ethereum, Ethereum Classic, Litecoin, Dash, Dai.
+This repo contains a payment plugin for Opencart shopping cart to support crypto currencies via Savvy. Supported currencies are Bitcoin, Bitcoin Cash, Bitcoin Gold, Ethereum, Ethereum Classic, Litecoin, Dash, Dai.
 
 Users have the opportunity to manage the currencies they would like to accept in their settings at https://www.savvy.io
 
